@@ -1,35 +1,42 @@
 ---
 name: reference-design-workflow
-description: Turn attached visual references into a reusable AGENTS.md design brief, then automatically route into the Product Design plugin for image ideation or a verified HTML prototype. Use when the user wants the reference-analysis-to-production workflow handled end to end.
+description: Turn screenshots or screen recordings into a reusable AGENTS.md design brief, then route to image ideation, a verified HTML prototype, or editable Figma reconstruction. Use for end-to-end reference-based design, including restoring captured screens as native Figma layers.
 ---
 
 # Reference Design Workflow
 
-Run reference analysis and Product Design as one continuous workflow. Do not make the user download, attach, or restate the generated design brief between stages.
+Run reference analysis and the selected output workflow continuously. Image and HTML outputs use Product Design; editable Figma reconstruction uses the Figma skills and tools. Do not make the user download, attach, or restate the generated design brief between stages.
 
 ## Resolve the deliverable
 
-- Respect an explicit request for an image, HTML, website, interface, prototype, or other format without asking again.
+- Respect an explicit request for an image, HTML, website, interface, prototype, editable Figma design, or other format without asking again.
+- Infer **Figma** for “还原到 Figma”, “可编辑设计稿”, or native Figma layers from screenshots or screen recordings. Figma prototype requests stay in this branch. A Figma URL used only as an HTML implementation reference does not select this branch.
 - Infer **image** for static visual exploration, concept art, posters, key visuals, or a flattened UI mockup.
 - Infer **HTML** for usable interfaces, responsive pages, interactive prototypes, or anything the user expects to open and operate in a browser.
-- If both would be reasonable and the user's intended use does not resolve the choice, ask one concise question: “这次要生成图片，还是可运行的 HTML 页面？”
+- If the intended deliverable is still ambiguous, ask one concise question offering only the plausible choices: image, runnable HTML, or editable Figma. Do not ask when the user already selected a format.
 - If the requested subject, product, or page is also missing, combine that missing detail into the same question. Do not conduct a long questionnaire when reasonable defaults are available.
 
 ## Stage 1: Build the design context
 
-1. Confirm that at least one reference image is attached or available at an accessible local path. If not, ask the user to attach it.
-2. Inspect every relevant reference at useful detail.
+1. Confirm that at least one reference image or screen recording is attached or available at an accessible local path. If not, ask the user to attach it. For Figma, read [editable Figma reconstruction](references/figma-reconstruction.md) now, including recording preparation before visual analysis.
+2. Inspect every relevant reference at useful detail. For recordings, extract and inspect representative stills with an available local video tool; retain timestamps and deduplicate repeated views. If extraction is unavailable, request key screenshots and report the limitation; do not pretend the recording was inspected.
 3. Use `image-to-agents-md` to extract the shared visual language, including layout, hierarchy, typography, color, spacing, surfaces, components, imagery, interaction implications, responsive behavior, accessibility risks, and reference-specific anti-patterns.
 4. Keep the context scoped to this task:
    - For an existing implementation project, update its root `AGENTS.md` while preserving unrelated instructions.
-   - For image-only work or a task without an existing project, create `design-runs/<descriptive-slug>/AGENTS.md` under the current workspace. Reuse that run directory for all artifacts from the task.
+   - For image-only or Figma-only work, or a task without an existing project, create `design-runs/<descriptive-slug>/AGENTS.md` under the current workspace. Reuse that run directory for all artifacts from the task.
 5. Label visual estimates and unseen behavior as proposed defaults. Do not claim exact tokens or pixel-perfect reconstruction from screenshots.
-6. Read the resulting `AGENTS.md` before handing off. It is the operational style brief, but it does not replace the images: Product Design must also receive and inspect the original visual references.
+6. Read the resulting `AGENTS.md` before handing off. It is the operational style brief, but it does not replace the images: the selected downstream workflow must also receive and inspect the original images or extracted keyframes, not just the written brief.
 7. Record the reference's icon character in `AGENTS.md`: outline or filled, geometric or organic, corner treatment, apparent grid, stroke weight, optical size, active state, and whether any marks are third-party brands.
 
 If `image-to-agents-md` is unavailable, perform the same evidence-based extraction directly and write the scoped `AGENTS.md`; report the fallback at completion.
 
-## Stage 2: Hand off to Product Design
+## Stage 2: Route to the selected output
+
+For **Figma**, follow [editable Figma reconstruction](references/figma-reconstruction.md) after Stage 1. Default to faithful reconstruction of the captured screens; skip Product Design ideation, HTML generation, and hosting. Create new visual directions only if requested.
+
+For **image or HTML**, continue with the Product Design handoff below.
+
+### Hand off to Product Design
 
 After `AGENTS.md` exists, explicitly load and follow `product-design:index`. Run its saved-user-context preflight and mandatory `get-context` brief gate. Treat the user's request, the generated `AGENTS.md`, and the original images as the starting brief so answered questions are not asked again.
 
@@ -73,10 +80,12 @@ Before HTML implementation, read [motion selection and transitions](references/m
 
 - Derive reusable visual principles; do not copy proprietary logos, protected copy, or distinctive assets unless the user supplied them for authorized reuse.
 - Existing product requirements and explicit user instructions outrank style inferences.
-- Do not silently produce both image and HTML. Produce both only when the user requests both.
+- Produce only the requested deliverables among image, HTML, and Figma. Internal reference captures and QA artifacts are allowed; do not treat them as extra requested products.
 - Do not overwrite unrelated `AGENTS.md` content or existing output files.
-- Never claim Product Design received a reference unless the actual image or a readable local image path was passed to its workflow.
+- Never claim a downstream workflow received a reference unless the actual image or a readable local image path was passed to it.
 
 ## Completion
 
-Report the selected route, the design-brief path, the generated options or verified prototype, and only the consequential assumptions that remain. For HTML, completion requires Product Design's `design-qa.md` to pass; for image ideation, completion requires all requested options to be visible and ready for selection.
+Report the selected route, the design-brief path, the generated options, verified prototype, or editable Figma link, and only the consequential assumptions that remain. For HTML, completion requires Product Design's `design-qa.md` to pass; for image ideation, completion requires all requested options to be visible and ready for selection.
+
+For Figma, completion requires visual comparison and structural editability checks recorded in `figma-qa.md`, plus a verified file/frame link. Report remaining font, asset, and interaction approximations. A script, whole-screen bitmap, or unverified write is not a completed editable reconstruction.

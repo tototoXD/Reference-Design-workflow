@@ -1,4 +1,4 @@
 interface:
   display_name: "Reference Design Workflow"
-  short_description: "Analyze references, then run Product Design"
-  default_prompt: "Use $reference-design-workflow with the attached references, then route through Product Design to create the requested image or HTML prototype."
+  short_description: "Turn references into images, HTML, or editable Figma"
+  default_prompt: "Use $reference-design-workflow with the attached screenshots or screen recording to create the requested image, HTML prototype, or editable Figma reconstruction."
