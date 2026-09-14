@@ -13,6 +13,7 @@ Run reference analysis and the selected output workflow continuously. Image and 
 - Infer **Figma** for “还原到 Figma”, “可编辑设计稿”, or native Figma layers from screenshots or screen recordings. Figma prototype requests stay in this branch. A Figma URL used only as an HTML implementation reference does not select this branch.
 - Infer **image** for static visual exploration, concept art, posters, key visuals, or a flattened UI mockup.
 - Infer **HTML** for usable interfaces, responsive pages, interactive prototypes, or anything the user expects to open and operate in a browser.
+- For HTML, classify the visual intent before implementation: **style inspiration**, **faithful reconstruction**, or **pixel-validated clone**. Use faithful reconstruction when a supplied screen is the target. Use pixel validation only when the user explicitly asks for 1:1, pixel-accurate, or measured comparison; do not impose that cost on style exploration.
 - If the intended deliverable is still ambiguous, ask one concise question offering only the plausible choices: image, runnable HTML, or editable Figma. Do not ask when the user already selected a format.
 - If the requested subject, product, or page is also missing, combine that missing detail into the same question. Do not conduct a long questionnaire when reasonable defaults are available.
 
@@ -24,7 +25,7 @@ Run reference analysis and the selected output workflow continuously. Image and 
 4. Keep the context scoped to this task:
    - For an existing implementation project, update its root `AGENTS.md` while preserving unrelated instructions.
    - For image-only or Figma-only work, or a task without an existing project, create `design-runs/<descriptive-slug>/AGENTS.md` under the current workspace. Reuse that run directory for all artifacts from the task.
-5. Label visual estimates and unseen behavior as proposed defaults. Do not claim exact tokens or pixel-perfect reconstruction from screenshots.
+5. Label visual estimates and unseen behavior as proposed defaults. Screenshot measurements are capture-space evidence, not proof of the source design's original tokens. Claim pixel validation only after a normalized rendered comparison and recorded evidence.
 6. Read the resulting `AGENTS.md` before handing off. It is the operational style brief, but it does not replace the images: the selected downstream workflow must also receive and inspect the original images or extracted keyframes, not just the written brief.
 7. Record the reference's icon character in `AGENTS.md`: outline or filled, geometric or organic, corner treatment, apparent grid, stroke weight, optical size, active state, and whether any marks are third-party brands.
 
@@ -68,13 +69,15 @@ Before HTML implementation, read [motion selection and transitions](references/m
 
 ### HTML mode
 
-1. Decide whether the supplied image is the exact visual target or only style inspiration.
-2. If it is the exact screen to reproduce, load and follow `product-design:image-to-code` directly, using the reference image as the selected visual target and `AGENTS.md` as supporting implementation guidance.
-3. If the user wants a new screen or product in the reference style, first load and follow `product-design:ideate`. Show its visual directions and wait for the user to select one; after selection, automatically continue with `product-design:image-to-code` using that displayed result as the exact target.
-4. Follow Product Design's prototype initialization, asset generation, interaction, browser-capture, and blocking design-QA requirements. A build is not complete from source inspection or compilation alone.
-5. Use the selected icon library's components with explicit imports so unused icons can be removed by the bundler. Apply consistent size, weight, color, alignment, accessible naming, and button hit areas; use text labels for unfamiliar or ambiguous actions.
-6. During design QA, compare icon metaphor, family, weight, size, baseline, active state, and visual density against the target—not merely whether an icon is present.
-7. Keep the verified local preview open. Do not deploy or publish unless the user explicitly requests sharing.
+1. Decide whether the supplied image is style inspiration, a faithful reconstruction target, or an explicitly pixel-validated target.
+2. For faithful or pixel-validated targets, read and follow [screenshot fidelity protocol](references/screenshot-fidelity.md). Record the source, crop, target viewport, state, and density assumptions before implementation; keep numeric probes separate from the semantic `AGENTS.md` brief.
+3. If it is the exact screen to reproduce, load and follow `product-design:image-to-code` directly, using the reference image as the selected visual target and `AGENTS.md` as supporting implementation guidance.
+4. If the user wants a new screen or product in the reference style, first load and follow `product-design:ideate`. Show its visual directions and wait for the user to select one; after selection, automatically continue with `product-design:image-to-code` using that displayed result as the exact target.
+5. Follow Product Design's prototype initialization, asset generation, interaction, browser-capture, and blocking design-QA requirements. A build is not complete from source inspection or compilation alone.
+6. For exact targets, run the protocol's normalized render-and-compare loop after Product Design QA. Fix geometry before polish, compare the full viewport and important named regions, and add the evidence plus remaining mismatches to `design-qa.md`.
+7. Use the selected icon library's components with explicit imports so unused icons can be removed by the bundler. Apply consistent size, weight, color, alignment, accessible naming, and button hit areas; use text labels for unfamiliar or ambiguous actions.
+8. During design QA, compare icon metaphor, family, weight, size, baseline, active state, and visual density against the target—not merely whether an icon is present.
+9. Keep the verified local preview open. Do not deploy or publish unless the user explicitly requests sharing.
 
 ## Boundaries
 
@@ -83,9 +86,10 @@ Before HTML implementation, read [motion selection and transitions](references/m
 - Produce only the requested deliverables among image, HTML, and Figma. Internal reference captures and QA artifacts are allowed; do not treat them as extra requested products.
 - Do not overwrite unrelated `AGENTS.md` content or existing output files.
 - Never claim a downstream workflow received a reference unless the actual image or a readable local image path was passed to it.
+- Do not treat a single whole-image similarity score as proof of fidelity; large flat areas can hide important local errors. Do not force a standalone generator or self-contained architecture into an existing project when its conventions already provide a reliable source of truth.
 
 ## Completion
 
-Report the selected route, the design-brief path, the generated options, verified prototype, or editable Figma link, and only the consequential assumptions that remain. For HTML, completion requires Product Design's `design-qa.md` to pass; for image ideation, completion requires all requested options to be visible and ready for selection.
+Report the selected route, the design-brief path, the generated options, verified prototype, or editable Figma link, and only the consequential assumptions that remain. For HTML, completion requires Product Design's `design-qa.md` to pass. For an exact target, it must also record the comparison viewport/state, full-view and important-region evidence, overflow and text-wrapping checks, and remaining approximations. Use the term pixel-validated only when that evidence supports it. For image ideation, completion requires all requested options to be visible and ready for selection.
 
 For Figma, completion requires visual comparison and structural editability checks recorded in `figma-qa.md`, plus a verified file/frame link. Report remaining font, asset, and interaction approximations. A script, whole-screen bitmap, or unverified write is not a completed editable reconstruction.
